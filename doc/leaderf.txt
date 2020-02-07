@@ -26,11 +26,29 @@ g:Lf_FilerAcceptDirSelectionCmd              *g:Lf_FilerAcceptDirSelectionCmd*
 
     Default value: 'lcd'
 
-g:Lf_FilerShowDevIcons                         *g:Lf_FilerShowDevIcons*
+g:Lf_FilerShowDevIcons                          *g:Lf_FilerShowDevIcons*
     Use vim-devicons to display icons.
     NOTE: https://github.com/ryanoasis/vim-devicons is required.
 
     Default value: 0
+
+g:Lf_FilerCommandMap                            *g:Lf_FilerCommandMap*
+    Customize insert mode mappings.
+
+    Default value:
+>
+    let g:Lf_FilerCommandMap = {
+    \   '<C-h>': 'goto_parent',
+    \   '<C-l>': 'goto_child',
+    \   '<C-f>': 'toggle_hidden_files',
+    \   '<C-g>': 'goto_root_marker_dir',
+    \}
+<
+
+g:Lf_FilerNormalMap                             *g:Lf_FilerNormalMap*
+    Customize normal mode mappings.
+
+    NOTE: not implements
 
 
 ==============================================================================
@@ -51,26 +69,38 @@ ARGUMENTS~
 ------------------------------------------------------------------------------
 MAPPINGS~
 
-INERT MODE:
-Key                     Action~
------------  -------------------------------
-`<C-h>`      Show files in parent directory
-`<C-l>`      Show files in directory under cursor
-`<C-f>`      Toggle show hidden files
-`<C-g>`      Show files of directory where |g:Lf_RootMarkers| exists
-`<CR>`       Open the file under cursor or create a file with the input pattern
-             file name (when empty results)
+Customizable key mapping using |g:Lf_FilerCommandMap| and
+|g:Lf_FilerNormalMap|.
 
-NORMAL MODE:
-Key                     Action~
------------  -------------------------------
-`h`/`<C-h>`  Show files in parent directory
-`l`/`<C-l>`  Show files in directory under cursor
-`I`          Toggle show hidden files
-`<C-g>`      Show files of directory where |g:Lf_RootMarkers| exists
-`o`/`<CR>`   Open the file under cursor or create a file with the input pattern
-             file name (when empty results)
+The key is a key and the value is a dictionary of action names.
 
+Example:
+>
+    let g:Lf_FilerCommandMap = {
+    \   '<C-h>': 'goto_parent',
+    \   '<C-l>': 'goto_child',
+    \   '<C-f>': 'toggle_hidden_files',
+    \   '<C-g>': 'goto_root_marker_dir',
+    \}
+<
+
+Action list:
+
+`goto_parent`
+    Show files in parent directory
+
+`goto_child`
+    Show files in directory under cursor
+
+`toggle_hidden_files`
+    Toggle show hidden files
+
+`goto_root_marker_dir`
+    Show files of directory where |g:Lf_RootMarkers| exists
+
+
+NOTE: Other mappings can be customized with option |g:Lf_CommandMap| or
+      |g:Lf_NormalMap| in LeaderF.
 
 ------------------------------------------------------------------------------
 HIGHLIGHTS~
@@ -80,6 +110,7 @@ Lf_hl_filerPath                                 *Lf_hl_filerPath*
 
 Lf_hl_filerDir                                  *Lf_hl_filerDir*
     default: `highlight def link Lf_hl_filerDir Identifier`
+
 
 ==============================================================================
 vim:tw=78:ts=4:ft=help:norl

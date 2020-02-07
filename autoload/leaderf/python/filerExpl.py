@@ -6,6 +6,7 @@ import os.path
 from leaderf.utils import *
 from leaderf.explorer import *
 from leaderf.manager import *
+from keymaps import KeyMaps
 
 
 # *****************************************************
@@ -88,8 +89,16 @@ class FilerExplManager(Manager):
         super(FilerExplManager, self).__init__()
 
         # customize mapping
-        key_dict = {"<C-H>": "<F9>", "<C-L>": "<F10>", "<C-F>": "<F8>", "<C-G>": "<F7>"}
-        self._getInstance()._cli._key_dict.update(key_dict)
+        insert_keymap_dict = {
+            "<C-h>": ["goto_parent", "<F10>"],
+            "<C-l>": ["goto_child", "<F9>"],
+            "<C-f>": ["toggle_hidden_files", "<F8>"],
+            "<C-g>": ["goto_root_marker_dir", "<F7>"],
+        }
+        insert_map = lfEval('get(g:, "Lf_FilerInsertMap", {})')
+
+        self.keymaps = KeyMaps(insert_keymap_dict, insert_map)
+        self.keymaps.updateKeyDict(self._getInstance()._cli)
 
     def _getExplClass(self):
         return FilerExplorer
@@ -97,10 +106,10 @@ class FilerExplManager(Manager):
     def _defineMaps(self):
         lfCmd("call leaderf#Filer#Maps()")
 
-    def accept(self, mode=''):
+    def accept(self, mode=""):
         instance = self._getInstance()
         line = instance.currentLine
-        pattern = ''.join(instance._cli._cmdline)
+        pattern = "".join(instance._cli._cmdline)
 
         if line == "":
             self._edit(pattern)
@@ -129,7 +138,7 @@ class FilerExplManager(Manager):
 
     def _createHelp(self):
         help = []
-        help.append('" <CR>/<double-click>/o : execute command under cursor')
+        help.append('" <CR>/<double-click>/o : open file under cursor')
         help.append('" <TAB> : switch to input mode')
         help.append('" <C-h>/h : Show files in parent directory')
         help.append('" <C-l>/l : Show files in directory under cursor')
@@ -145,14 +154,12 @@ class FilerExplManager(Manager):
         this function can be overridden to add new cmd
         if return true, exit the input loop
         """
-        if equal(cmd, "<F10>"):  # <C-H>
-            self.down()
-        elif equal(cmd, "<F9>"):  # <C-L>
-            self.up()
-        elif equal(cmd, "<F8>"):  # <C-F>
-            self.toggleHiddenFiles()
-        elif equal(cmd, "<F7>"):  # <C-G>
-            self.gotoRootMarkersDir()
+        # getFuncKeyDict: { "goto_parent": "<F10>" }
+        if cmd in self.keymaps.getFuncKeyDict().values():
+            for func, key in self.keymaps.getFuncKeyDict().items():
+                if key == cmd:
+                    exec("self.%s()" % func)
+                    break
         else:
             return True
 
@@ -187,7 +194,7 @@ class FilerExplManager(Manager):
             id = int(lfEval("matchadd('Lf_hl_filerDir', '^[^\/]\+\/$')"))
             self._match_ids.append(id)
 
-    def down(self):
+    def goto_child(self):
         line = self._getInstance().currentLine
 
         if line == ".":
@@ -206,7 +213,7 @@ class FilerExplManager(Manager):
 
         self._chcwd(os.path.abspath(file_info["fullpath"]))
 
-    def up(self):
+    def goto_parent(self):
         if len(self._getInstance()._cli._cmdline) > 0:
             self._refresh()
             return
@@ -215,15 +222,15 @@ class FilerExplManager(Manager):
         self._chcwd(abspath)
 
         lfCmd('call search("%s")' % os.path.basename(cwd))
-        lfCmd('normal! 0')
+        lfCmd("normal! 0")
 
-    def toggleHiddenFiles(self):
+    def toggle_hidden_files(self):
         self._getExplorer()._show_hidden_files = (
             not self._getExplorer()._show_hidden_files
         )
         self.refresh(normal_mode=False)
 
-    def gotoRootMarkersDir(self):
+    def goto_root_marker_dir(self):
         root_markers = lfEval("g:Lf_RootMarkers")
         rootMarkersDir = self._nearestAncestor(
             root_markers, self._getInstance().getCwd()
@@ -286,12 +293,12 @@ class FilerExplManager(Manager):
     def _edit(self, name):
         path = os.path.join(self._getInstance().getCwd(), name)
         self._getInstance().exitBuffer()
-        lfCmd('edit %s' % path)
+        lfCmd("edit %s" % path)
 
     def _chcwd(self, path):
         self._getExplorer()._cwd = path
         self._refresh(cwd=path)
-        if '--auto-cd' in self.getArguments():
+        if "--auto-cd" in self.getArguments():
             self.cd(path)
 
 
