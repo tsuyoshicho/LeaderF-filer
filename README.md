@@ -4,15 +4,6 @@ This Plugin use [LeaderF](https://github.com/Yggdroot/LeaderF) to navigate the f
 
 Inspired by [vim-clap's filer provider](https://github.com/liuchengxu/vim-clap/pull/272), [helm's find-files](https://github.com/emacs-helm/helm).
 
-
-Buffer
-
-<img src="./images/buffer.png" alt="buffer" />
-
-Popup Window
-
-<img src="./images/popup.png" alt="popup" />
-
 ## Installation
 
 ```
@@ -31,6 +22,12 @@ Plug 'ryanoasis/vim-devicons'
 or
 ```
 :Leaderf filer
+```
+
+Popup
+
+```
+:Leaderf filer --popup
 ```
 
 ## Mappings
@@ -56,7 +53,6 @@ NORMAL MODE:
 | `I`           | Toggle show hidden files                                                                          |
 | `<CR>` / `o`  | Open the file under cursor or create a file with the input pattern file name (when empty results) |
 
-
 ## Settings
 
 Show icons.
@@ -65,6 +61,8 @@ Show icons.
 " Plug 'ryanoasis/vim-devicons'
 let g:Lf_FilerShowDevIcons = 1
 ```
+
+Customize mappings.
 
 ## Screenshots
 
